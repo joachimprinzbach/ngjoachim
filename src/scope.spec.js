@@ -1,6 +1,5 @@
 'use strict';
 
-
 describe('scope', () => {
 
     it('can be constructed and used as an object', () => {
@@ -8,5 +7,5 @@ describe('scope', () => {
         scope.someProp = 11;
 
         ecpect(scope.someProp).toEqual(11);
-    })
-})
+    });
+});

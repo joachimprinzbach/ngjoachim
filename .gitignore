@@ -1,4 +1,4 @@
 .idea
-ng-joachim.iml
+*.iml
 *.log
 /node_modules
