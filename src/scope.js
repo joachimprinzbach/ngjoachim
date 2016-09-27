@@ -13,9 +13,15 @@ export class Scope {
     }
 
     $digest() {
+        let oldValue;
+        let newValue;
         this.$$watchers.forEach(watcher => {
-            watcher.watchFunc(this);
-            watcher.listenerFunc()
+            newValue = watcher.watchFunc(this);
+            oldValue = watcher.lastValue;
+            if(newValue !== oldValue) {
+                watcher.lastValue = newValue;
+                watcher.listenerFunc(newValue, oldValue, this);
+            }
         });
     }
 }
