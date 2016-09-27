@@ -13,6 +13,9 @@ export class Scope {
     }
 
     $digest() {
-        this.$$watchers.forEach(watcher => watcher.listenerFunc());
+        this.$$watchers.forEach(watcher => {
+            watcher.watchFunc(this);
+            watcher.listenerFunc()
+        });
     }
 }

@@ -24,5 +24,15 @@ describe('scope', () => {
 
             expect(listenerFunc).toHaveBeenCalled();
         });
+
+        it('should call watch with the scope', () => {
+            let watchFunc = jasmine.createSpy();
+            let listenerFunc = () => {};
+            scope.$watch(watchFunc, listenerFunc);
+
+            scope.$digest();
+
+            expect(watchFunc).toHaveBeenCalledWith(scope);
+        });
     });
 });
