@@ -80,5 +80,38 @@ describe('scope', () => {
             scope.$digest();
             expect(oldValueStart).toBe("Home sweet home");
         });
+
+        it('should allow to leave the listenerFunc out', () => {
+            let watchFunc = jasmine.createSpy().and.returnValue("Alabama");
+            scope.$watch(watchFunc);
+
+            scope.$digest();
+
+            expect(watchFunc).toHaveBeenCalled();
+        });
+
+        it('should run as a loop and support watchers changing watched properties', () => {
+            scope.value = 'NaNaNaNaNaNa Batman!';
+            let watchFunc = (scope) => scope.valueInUpperCase;
+            let listenerFunc = (newValue) => {
+                if (newValue)
+                    scope.firstLetter = newValue.substring(0, 1);
+            };
+            scope.$watch(watchFunc, listenerFunc);
+
+            let secondWatchFunc = (scope) => scope.value;
+            let secondListenerFunc = (newValue) => {
+                if (newValue)
+                    scope.valueInUpperCase = newValue.toUpperCase();
+            };
+            scope.$watch(secondWatchFunc, secondListenerFunc);
+
+            scope.$digest();
+            expect(scope.firstLetter).toBe('N');
+
+            scope.value = 'Trude';
+            scope.$digest();
+            expect(scope.firstLetter).toBe('T');
+        });
     });
 });

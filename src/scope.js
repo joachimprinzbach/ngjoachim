@@ -5,17 +5,26 @@ export class Scope {
     }
 
     $watch(watchFunc, listenerFunc) {
+        var defaultListener = () => {};
         let watcher = {
             watchFunc: watchFunc,
-            listenerFunc: listenerFunc,
+            listenerFunc: listenerFunc || defaultListener,
             lastValue: this.initialWatchValue
         };
         this.$$watchers.push(watcher);
     }
 
     $digest() {
+        let isDirty;
+        do {
+            isDirty = this.$$digestOnce();
+        }  while(isDirty);
+    }
+
+    $$digestOnce() {
         let oldValue;
         let newValue;
+        let isDirty = false;
         this.$$watchers.forEach(watcher => {
             newValue = watcher.watchFunc(this);
             oldValue = watcher.lastValue;
@@ -26,8 +35,10 @@ export class Scope {
                 } else {
                     watcher.listenerFunc(newValue, oldValue, this);
                 }
+                isDirty = true;
             }
         });
+        return isDirty;
     }
 
     initialWatchValue() {
