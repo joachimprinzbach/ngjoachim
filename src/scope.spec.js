@@ -101,8 +101,9 @@ describe('scope', () => {
 
             let secondWatchFunc = (scope) => scope.value;
             let secondListenerFunc = (newValue) => {
-                if (newValue)
+                if (newValue) {
                     scope.valueInUpperCase = newValue.toUpperCase();
+                }
             };
             scope.$watch(secondWatchFunc, secondListenerFunc);
 
@@ -112,6 +113,21 @@ describe('scope', () => {
             scope.value = 'Trude';
             scope.$digest();
             expect(scope.firstLetter).toBe('T');
+        });
+
+        it('should throw an error if two watchers depend on each others results', () => {
+            scope.valueA = 0;
+            scope.valueB = 0;
+            let watchFunc = (scope) => scope.valueA;
+            let listenerFunc = () => scope.valueB++;
+            scope.$watch(watchFunc, listenerFunc);
+
+            let secondWatchFunc = (scope) => scope.valueB;
+            let secondListenerFunc = () => scope.valueB++;
+            scope.$watch(secondWatchFunc, secondListenerFunc);
+
+            let digestExecution = () => scope.$digest();
+            expect(digestExecution).toThrow();
         });
     });
 });
