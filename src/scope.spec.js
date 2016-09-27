@@ -1,11 +1,10 @@
-'use strict';
+import {Scope} from './scope';
 
-describe('scope', () => {
-
-    it('can be constructed and used as an object', () => {
+describe('scope', function () {
+    it('should be constructable as an object', function () {
         var scope = new Scope();
-        scope.someProp = 11;
+        scope.prop = 12;
 
-        ecpect(scope.someProp).toEqual(11);
-    });
+        expect(scope.prop).toEqual(12);
+    })
 });
