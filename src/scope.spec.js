@@ -39,7 +39,6 @@ describe('scope', () => {
         it('should call the listenerFunc once a watched value changes', () => {
             scope.val = 'val';
             scope.counter = 0;
-
             let watchFunc = (scope) => scope.val;
             let listenerFunc = (newValue, oldValue, scope) => scope.counter++;
             scope.$watch(watchFunc, listenerFunc);
@@ -55,6 +54,17 @@ describe('scope', () => {
             scope.$digest();
             expect(scope.counter).toBe(2);
 
+        });
+
+        it('should also call the listenerFunc when watch value is undefined', () => {
+            scope.val = undefined;
+            scope.counter = 0;
+            let watchFunc = (scope) => scope.val;
+            let listenerFunc = (newValue, oldValue, scope) => scope.counter++;
+            scope.$watch(watchFunc, listenerFunc);
+
+            scope.$digest();
+            expect(scope.counter).toBe(1);
         });
     });
 });

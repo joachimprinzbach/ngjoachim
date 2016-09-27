@@ -7,7 +7,8 @@ export class Scope {
     $watch(watchFunc, listenerFunc) {
         let watcher = {
             watchFunc: watchFunc,
-            listenerFunc: listenerFunc
+            listenerFunc: listenerFunc,
+            lastValue: this.initialWatchValue
         };
         this.$$watchers.push(watcher);
     }
@@ -23,5 +24,8 @@ export class Scope {
                 watcher.listenerFunc(newValue, oldValue, this);
             }
         });
+    }
+
+    initialWatchValue() {
     }
 }
