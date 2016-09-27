@@ -66,5 +66,19 @@ describe('scope', () => {
             scope.$digest();
             expect(scope.counter).toBe(1);
         });
+
+        it('should use the newValue as oldValue when calling the listener for the first time', () => {
+            scope.val = "Home sweet home";
+            let oldValueStart = undefined;
+
+            let watchFunc = (scope) => scope.val;
+            let listenerFunc = (newValue, oldValue) => {
+                oldValueStart = oldValue;
+            };
+            scope.$watch(watchFunc, listenerFunc);
+
+            scope.$digest();
+            expect(oldValueStart).toBe("Home sweet home");
+        });
     });
 });

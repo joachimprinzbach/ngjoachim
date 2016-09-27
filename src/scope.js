@@ -19,9 +19,13 @@ export class Scope {
         this.$$watchers.forEach(watcher => {
             newValue = watcher.watchFunc(this);
             oldValue = watcher.lastValue;
-            if(newValue !== oldValue) {
+            if (newValue !== oldValue) {
                 watcher.lastValue = newValue;
-                watcher.listenerFunc(newValue, oldValue, this);
+                if (oldValue == this.initialWatchValue) {
+                    watcher.listenerFunc(newValue, newValue, this);
+                } else {
+                    watcher.listenerFunc(newValue, oldValue, this);
+                }
             }
         });
     }
