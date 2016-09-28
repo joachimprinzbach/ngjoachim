@@ -129,5 +129,46 @@ describe('scope', () => {
             let digestExecution = () => scope.$digest();
             expect(digestExecution).toThrow();
         });
+
+        it('should stop digesting when all watchers have been checked in a row and are not dirty', () => {
+            scope.values = [];
+            for (let i = 0; i < 100; i++) {
+                scope.values.push(i);
+            }
+            let digestCycleCount = 0;
+
+            for (let i = 0; i < 100; i++) {
+                let watchFunc = (scope) => {
+                    digestCycleCount++;
+                    return scope.values[i];
+                };
+                scope.$watch(watchFunc, () => {
+                });
+            }
+
+            scope.$digest();
+            expect(digestCycleCount).toBe(200);
+
+            scope.values[0] = 666;
+            scope.$digest();
+            expect(digestCycleCount).toBe(301);
+        });
+
+        it('should continue digesting when new watches are being created during digest call', () => {
+            scope.value = 'Harry';
+            scope.counter = 0;
+
+            let watchFunc = (scope) => scope.value;
+            let listenerFunc = (newValue, oldValue, scope) => {
+                scope.$watch(
+                    (scope) => scope.value,
+                    (newValue, oldValue, scope) => scope.counter++
+                )
+            }
+            scope.$watch(watchFunc, listenerFunc);
+
+            scope.$digest();
+            expect(scope.counter).toBe(1);
+        });
     });
 });
