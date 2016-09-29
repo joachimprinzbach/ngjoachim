@@ -164,8 +164,38 @@ describe('scope', () => {
                     (scope) => scope.value,
                     (newValue, oldValue, scope) => scope.counter++
                 )
-            }
+            };
             scope.$watch(watchFunc, listenerFunc);
+
+            scope.$digest();
+            expect(scope.counter).toBe(1);
+        });
+
+        it('should be able to do value comparison', () => {
+            let enableValueComparison = true;
+            scope.value = [1, 2, 3, 4];
+            scope.counter = 0;
+            let watchFunc = (scope) => scope.value;
+            let listenerFunc = (newValue, oldValue, scope) => scope.counter++;
+            scope.$watch(watchFunc, listenerFunc, enableValueComparison);
+
+            scope.$digest();
+            expect(scope.counter).toBe(1);
+
+            scope.value.push(5);
+            scope.$digest();
+            expect(scope.counter).toBe(2);
+        });
+
+        it('should handle NaN values', () => {
+            scope.value = 0 / 0;
+            scope.counter = 0;
+            let watchFunc = (scope) => scope.value;
+            let listenerFunc = (newValue, oldValue, scope) => scope.counter++;
+            scope.$watch(watchFunc, listenerFunc);
+
+            scope.$digest();
+            expect(scope.counter).toBe(1);
 
             scope.$digest();
             expect(scope.counter).toBe(1);

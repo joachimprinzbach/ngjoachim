@@ -1,3 +1,5 @@
+import 'lodash';
+
 export class Scope {
 
     constructor() {
@@ -5,11 +7,13 @@ export class Scope {
         this.$$lastDetectedDirtyWatcher = null;
     }
 
-    $watch(watchFunc, listenerFunc) {
-        var defaultListener = () => {};
+    $watch(watchFunc, listenerFunc, compareValues) {
+        var defaultListener = () => {
+        };
         let watcher = {
             watchFunc: watchFunc,
             listenerFunc: listenerFunc || defaultListener,
+            compareValues: !!compareValues,
             lastValue: this.initialWatchValue
         };
         this.$$watchers.push(watcher);
@@ -23,10 +27,10 @@ export class Scope {
         do {
             isDirty = this.$$digestOnce();
             timeToLive--;
-            if(isDirty && timeToLive <= 0) {
+            if (isDirty && timeToLive <= 0) {
                 throw "Too many digest iterations! Please check your watchers."
             }
-        }  while(isDirty);
+        } while (isDirty);
     }
 
     $$digestOnce() {
@@ -36,20 +40,37 @@ export class Scope {
         this.$$watchers.some(watcher => {
             newValue = watcher.watchFunc(this);
             oldValue = watcher.lastValue;
-            if (newValue !== oldValue) {
+            if (!this.$$areEqual(newValue, oldValue, watcher.compareValues)) {
                 this.$$lastDetectedDirtyWatcher = watcher;
-                watcher.lastValue = newValue;
+                if (watcher.compareValues) {
+                    watcher.lastValue = _.cloneDeep(newValue);
+                } else {
+                    watcher.lastValue = newValue;
+                }
                 if (oldValue == this.initialWatchValue) {
                     watcher.listenerFunc(newValue, newValue, this);
                 } else {
                     watcher.listenerFunc(newValue, oldValue, this);
                 }
                 isDirty = true;
-            } else if(this.$$lastDetectedDirtyWatcher === watcher) {
+            } else if (this.$$lastDetectedDirtyWatcher === watcher) {
                 return true;
             }
         });
         return isDirty;
+    }
+
+    $$areEqual(newValue, oldValue, compareValues) {
+        if (compareValues) {
+            return _.isEqual(newValue, oldValue);
+        } else {
+            return newValue === oldValue || this.bothAreNaN(newValue, oldValue);
+        }
+    }
+
+    bothAreNaN(value1, value2) {
+        return typeof value1 === 'number' && typeof  value2 === 'number'
+            && isNaN(value1) && isNaN(value2);
     }
 
     initialWatchValue() {
