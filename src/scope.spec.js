@@ -217,6 +217,22 @@ describe('scope', () => {
             var evalResult = scope.$eval(func, 3);
 
             expect(evalResult).toBe(50);
-        })
+        });
+
+        it('should execute a function with $apply and start the digest cycle', () => {
+            scope.value = "Peter";
+            scope.counter = 0;
+
+            let watchFunc = (scope) => scope.value;
+            let listenerFunc = (newValue, oldValue, scope) => scope.counter++;
+            scope.$watch(watchFunc, listenerFunc);
+
+            scope.$digest();
+            expect(scope.counter).toBe(1);
+
+            let funcToApply = (scope) => scope.value = "Hansi";
+            scope.$apply(funcToApply);
+            expect(scope.counter).toBe(2);
+        });
     });
 });

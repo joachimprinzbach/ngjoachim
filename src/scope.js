@@ -37,6 +37,14 @@ export class Scope {
         return funcExpr(this, params);
     }
 
+    $apply(expression) {
+        try {
+            return this.$eval(expression);
+        } finally {
+            this.$digest();
+        }
+    }
+
     $$digestOnce() {
         let oldValue;
         let newValue;
