@@ -200,5 +200,23 @@ describe('scope', () => {
             scope.$digest();
             expect(scope.counter).toBe(1);
         });
+
+        it('should be able to execute a function via $eval', () => {
+            scope.value = "Fred";
+
+            let func = (scope) => scope.value;
+            var evalResult = scope.$eval(func);
+
+            expect(evalResult).toBe("Fred");
+        });
+
+        it('should be able to pass a second argument to $eval', () => {
+            scope.value = 47;
+
+            let func = (scope, val) => scope.value + val;
+            var evalResult = scope.$eval(func, 3);
+
+            expect(evalResult).toBe(50);
+        })
     });
 });

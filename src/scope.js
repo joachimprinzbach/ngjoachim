@@ -33,6 +33,10 @@ export class Scope {
         } while (isDirty);
     }
 
+    $eval(funcExpr, params) {
+        return funcExpr(this, params);
+    }
+
     $$digestOnce() {
         let oldValue;
         let newValue;
