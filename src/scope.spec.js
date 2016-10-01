@@ -234,5 +234,27 @@ describe('scope', () => {
             scope.$apply(funcToApply);
             expect(scope.counter).toBe(2);
         });
+
+        it('should execute functions via $evalAsync at the end of the current cycle', () => {
+            scope.values = [1, 2, 3, 4];
+            scope.asyncEvaluated = false;
+            scope.asyncEvaluatedImmediately = false;
+
+            let watchFunc = (scope) => scope.value;
+            let listenerFunc = (newValue, oldValue, scope) => {
+                scope.$evalAsync(scope => {
+                    scope.asyncEvaluated = true;
+                });
+                scope.asyncEvaluatedImmediately = scope.asyncEvaluated;
+            };
+            scope.$watch(watchFunc, listenerFunc);
+
+            scope.$digest();
+            expect(scope.asyncEvaluated).toBe(true);
+            expect(scope.asyncEvaluatedImmediately).toBe(false);
+        });
+
+
+
     });
 });

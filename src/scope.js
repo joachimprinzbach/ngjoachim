@@ -5,6 +5,7 @@ export class Scope {
     constructor() {
         this.$$watchers = [];
         this.$$lastDetectedDirtyWatcher = null;
+        this.$$asyncQueue = [];
     }
 
     $watch(watchFunc, listenerFunc, compareValues) {
@@ -25,6 +26,10 @@ export class Scope {
         let isDirty;
         this.$$lastDetectedDirtyWatcher = null;
         do {
+            while(this.$$asyncQueue.length) {
+                let asyncTask = this.$$asyncQueue.shift();
+                asyncTask.scope.$eval(asyncTask.expression);
+            }
             isDirty = this.$$digestOnce();
             timeToLive--;
             if (isDirty && timeToLive <= 0) {
@@ -35,6 +40,13 @@ export class Scope {
 
     $eval(funcExpr, params) {
         return funcExpr(this, params);
+    }
+
+    $evalAsync(funcExpr) {
+        this.$$asyncQueue.push({
+            scope: this,
+            expression: funcExpr
+        })
     }
 
     $apply(expression) {
