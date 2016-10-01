@@ -254,7 +254,57 @@ describe('scope', () => {
             expect(scope.asyncEvaluatedImmediately).toBe(false);
         });
 
+        it('should execute functions added by watch functions via $evalAsync at the end of the current cycle', () => {
+            scope.values = [1, 2, 3, 4];
+            scope.asyncEvaluated = false;
 
+            let watchFunc = (scope) => {
+                if (!scope.asyncEvaluated) {
+                    scope.$evalAsync(scope => {
+                        scope.asyncEvaluated = true;
+                    })
+                }
+            };
+            scope.$watch(watchFunc, () => {
+            });
+
+            scope.$digest();
+            expect(scope.asyncEvaluated).toBe(true);
+        });
+
+        it('should execute $evalAsync functions when not dirty', () => {
+            scope.values = [1, 2, 3, 4];
+            scope.asyncEvaluatedTimes = 0;
+
+            let watchFunc = (scope) => {
+                if (scope.asyncEvaluatedTimes < 2) {
+                    scope.$evalAsync(scope => {
+                        scope.asyncEvaluatedTimes++;
+                    })
+                }
+            };
+            scope.$watch(watchFunc, () => {
+            });
+
+            scope.$digest();
+            expect(scope.asyncEvaluatedTimes).toBe(2);
+        });
+
+        it('should execute $evalAsync functions when not dirty', () => {
+            scope.values = [1, 2, 3, 4];
+
+            let watchFunc = (scope) => {
+                scope.$evalAsync(() => {
+                });
+                return scope.values;
+            };
+            scope.$watch(watchFunc, () => {
+            });
+
+            let digestExecution = () => scope.$digest();
+            expect(digestExecution).toThrow();
+        });
 
     });
-});
+})
+;

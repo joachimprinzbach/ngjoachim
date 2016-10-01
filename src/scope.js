@@ -32,10 +32,10 @@ export class Scope {
             }
             isDirty = this.$$digestOnce();
             timeToLive--;
-            if (isDirty && timeToLive <= 0) {
+            if ((isDirty || this.$$asyncQueue.length) && timeToLive <= 0) {
                 throw "Too many digest iterations! Please check your watchers."
             }
-        } while (isDirty);
+        } while (isDirty || this.$$asyncQueue.length);
     }
 
     $eval(funcExpr, params) {
